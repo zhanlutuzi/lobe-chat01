@@ -81,7 +81,7 @@ One-click **FREE** deployment of your private OpenAI ChatGPT/Claude/Gemini/Groq/
 
 </details>
 
-## 👋🏻 Getting Started & Join Our Community
+## 👋🏻 Getting Started & Join Our Community.
 
 We are a group of e/acc design-engineers, hoping to provide modern design components and tools for AIGC.
 By adopting the Bootstrapping approach, we aim to provide developers and users with a more open, transparent, and user-friendly product ecosystem.
