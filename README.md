@@ -50,7 +50,7 @@ One-click **FREE** deployment of your private OpenAI ChatGPT/Claude/Gemini/Groq/
 
 #### TOC
 
-- [👋🏻 Getting Started & Join Our Community](#-getting-started--join-our-community)
+- [👋🏻 Getting Started & Join Our Community.](#-getting-started--join-our-community)
 - [✨ Features](#-features)
   - [`1` Multi-Model Service Provider Support](#1-multi-model-service-provider-support)
   - [`2` Local Large Language Model (LLM) Support](#2-local-large-language-model-llm-support)
