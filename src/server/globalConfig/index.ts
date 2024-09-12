@@ -4,6 +4,8 @@ import { fileEnv } from '@/config/file';
 import { langfuseEnv } from '@/config/langfuse';
 import { getLLMConfig } from '@/config/llm';
 import {
+  BedrockProviderCard,
+  FireworksAIProviderCard,
   GroqProviderCard,
   NovitaProviderCard,
   OllamaProviderCard,
@@ -34,6 +36,8 @@ export const getServerGlobalConfig = () => {
     ZHIPU_MODEL_LIST,
 
     ENABLED_AWS_BEDROCK,
+    AWS_BEDROCK_MODEL_LIST,
+
     ENABLED_GOOGLE,
 
     ENABLED_GROQ,
@@ -60,7 +64,9 @@ export const getServerGlobalConfig = () => {
     SILICONCLOUD_MODEL_LIST,
 
     ENABLED_UPSTAGE,
-    
+
+    ENABLED_SPARK,
+
     ENABLED_AZURE_OPENAI,
     AZURE_MODEL_LIST,
 
@@ -76,6 +82,9 @@ export const getServerGlobalConfig = () => {
 
     ENABLED_TOGETHERAI,
     TOGETHERAI_MODEL_LIST,
+
+    ENABLED_FIREWORKSAI,
+    FIREWORKSAI_MODEL_LIST,
   } = getLLMConfig();
 
   const config: GlobalServerConfig = {
@@ -100,8 +109,25 @@ export const getServerGlobalConfig = () => {
         }),
       },
       baichuan: { enabled: ENABLED_BAICHUAN },
-      bedrock: { enabled: ENABLED_AWS_BEDROCK },
+      bedrock: {
+        enabled: ENABLED_AWS_BEDROCK,
+        enabledModels: extractEnabledModels(AWS_BEDROCK_MODEL_LIST),
+        serverModelCards: transformToChatModelCards({
+          defaultChatModels: BedrockProviderCard.chatModels,
+          modelString: AWS_BEDROCK_MODEL_LIST,
+        }),
+      },
       deepseek: { enabled: ENABLED_DEEPSEEK },
+
+      fireworksai: {
+        enabled: ENABLED_FIREWORKSAI,
+        enabledModels: extractEnabledModels(FIREWORKSAI_MODEL_LIST),
+        serverModelCards: transformToChatModelCards({
+          defaultChatModels: FireworksAIProviderCard.chatModels,
+          modelString: FIREWORKSAI_MODEL_LIST,
+        }),
+      },
+
       google: { enabled: ENABLED_GOOGLE },
       groq: {
         enabled: ENABLED_GROQ,
@@ -164,6 +190,7 @@ export const getServerGlobalConfig = () => {
           modelString: SILICONCLOUD_MODEL_LIST,
         }),
       },
+      spark: { enabled: ENABLED_SPARK },
       stepfun: { enabled: ENABLED_STEPFUN },
 
       taichu: { enabled: ENABLED_TAICHU },
