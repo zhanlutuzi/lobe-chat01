@@ -5,7 +5,14 @@
   "agentDefaultMessage": "Hello, I am **{{name}}**. You can start a conversation with me right away, or you can go to [Assistant Settings]({{url}}) to complete my information.",
   "agentDefaultMessageWithSystemRole": "Hello, I'm **{{name}}**, {{systemRole}}. Let's start chatting!",
   "agentDefaultMessageWithoutEdit": "Hello, I'm **{{name}}**, let's start chatting!",
-  "agentsAndConversations": "Assistants and Conversations",
+  "agents": "Assistants",
+  "artifact": {
+    "generating": "Generating",
+    "inThread": "Cannot view in subtopic, please switch to the main conversation area to open",
+    "thinking": "Thinking",
+    "thought": "Thought Process",
+    "unknownTitle": "Untitled Work"
+  },
   "backToBottom": "Back to bottom",
   "chatList": {
     "longMessageDetail": "View Details"
@@ -25,6 +32,7 @@
   "duplicateTitle": "{{title}} Copy",
   "emptyAgent": "No assistant available",
   "historyRange": "History Range",
+  "historySummary": "Historical Message Summary",
   "inbox": {
     "desc": "Activate the brain cluster and spark creative thinking. Your virtual assistant is here to communicate with you about everything.",
     "title": "Just Chat"
@@ -59,6 +67,7 @@
   },
   "messageAction": {
     "delAndRegenerate": "Delete and Regenerate",
+    "deleteDisabledByThreads": "There are subtopics, deletion is not allowed",
     "regenerate": "Regenerate"
   },
   "newAgent": "New Assistant",
@@ -75,7 +84,7 @@
   },
   "regenerate": "Regenerate",
   "roleAndArchive": "Role and Archive",
-  "searchAgentPlaceholder": "Search assistants and conversations...",
+  "searchAgentPlaceholder": "Search assistants...",
   "sendPlaceholder": "Type your message here...",
   "sessionGroup": {
     "config": "Group Management",
@@ -94,14 +103,20 @@
     "tooLong": "Group name length should be between 1-20"
   },
   "shareModal": {
+    "copy": "Copy",
     "download": "Download Screenshot",
+    "downloadFile": "Download File",
+    "exportTitle": "Default Title",
     "imageType": "Image Format",
+    "includeTool": "Include Plugin Messages",
+    "includeUser": "Include User Messages",
     "screenshot": "Screenshot",
     "settings": "Export Settings",
-    "shareToShareGPT": "Generate ShareGPT Sharing Link",
+    "text": "Text",
     "withBackground": "Include Background Image",
     "withFooter": "Include Footer",
     "withPluginInfo": "Include Plugin Information",
+    "withRole": "Include Message Role",
     "withSystemRole": "Include Assistant Role Setting"
   },
   "stt": {
@@ -109,9 +124,14 @@
     "loading": "Recognizing...",
     "prettifying": "Polishing..."
   },
-  "temp": "Temporary",
+  "thread": {
+    "divider": "Subtopic",
+    "threadMessageCount": "{{messageCount}} messages",
+    "title": "Subtopic"
+  },
   "tokenDetails": {
     "chats": "Chat Messages",
+    "historySummary": "History Summary",
     "rest": "Remaining",
     "systemRole": "Role Settings",
     "title": "Context Details",
@@ -125,29 +145,10 @@
     "used": "Used"
   },
   "topic": {
-    "actions": {
-      "autoRename": "Auto Rename",
-      "duplicate": "Create Copy",
-      "export": "Export Topic"
-    },
     "checkOpenNewTopic": "Enable new topic?",
     "checkSaveCurrentMessages": "Do you want to save the current conversation as a topic?",
-    "confirmRemoveAll": "You are about to delete all topics. Once deleted, they cannot be recovered. Please proceed with caution.",
-    "confirmRemoveTopic": "You are about to delete this topic. Once deleted, it cannot be recovered. Please proceed with caution.",
-    "confirmRemoveUnstarred": "You are about to delete unstarred topics. Once deleted, they cannot be recovered. Please proceed with caution.",
-    "defaultTitle": "Default Topic",
-    "duplicateLoading": "Topic duplicating...",
-    "duplicateSuccess": "Topic duplicated successfully",
-    "guide": {
-      "desc": "Click the button on the left to save the current session as a historical topic and start a new session.",
-      "title": "Topic List"
-    },
     "openNewTopic": "Open New Topic",
-    "removeAll": "Remove All Topics",
-    "removeUnstarred": "Remove Unstarred Topics",
-    "saveCurrentMessages": "Save current session as topic",
-    "searchPlaceholder": "Search topics...",
-    "title": "Topic List"
+    "saveCurrentMessages": "Save current session as topic"
   },
   "translate": {
     "action": "Translate",
@@ -178,5 +179,6 @@
         "processing": "Processing file..."
       }
     }
-  }
+  },
+  "zenMode": "Zen Mode"
 }

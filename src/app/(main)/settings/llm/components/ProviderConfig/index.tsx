@@ -80,11 +80,6 @@ const useStyles = createStyles(({ css, prefixCls, responsive, token }) => ({
       background: ${token.colorFill};
     }
   `,
-  safariIconWidthFix: css`
-    svg {
-      width: unset !important;
-    }
-  `,
 }));
 
 export interface ProviderConfigProps extends Omit<ModelProviderCard, 'id' | 'chatModels'> {
@@ -121,6 +116,7 @@ const ProviderConfig = memo<ProviderConfigProps>(
     className,
     name,
     showAceGcm = true,
+    showChecker = true,
     extra,
   }) => {
     const { t } = useTranslation('setting');
@@ -224,12 +220,14 @@ const ProviderConfig = memo<ProviderConfigProps>(
         label: t('llm.modelList.title'),
         name: [LLMProviderConfigKey, id, LLMProviderModelListKey],
       },
-      checkerItem ?? {
-        children: <Checker model={checkModel!} provider={id} />,
-        desc: t('llm.checker.desc'),
-        label: t('llm.checker.title'),
-        minWidth: undefined,
-      },
+      showChecker
+        ? (checkerItem ?? {
+            children: <Checker model={checkModel!} provider={id} />,
+            desc: t('llm.checker.desc'),
+            label: t('llm.checker.title'),
+            minWidth: undefined,
+          })
+        : undefined,
       showAceGcm && isServerMode && aceGcmItem,
     ].filter(Boolean) as FormItemProps[];
 
@@ -269,7 +267,6 @@ const ProviderConfig = memo<ProviderConfigProps>(
       title: (
         <Flexbox
           align={'center'}
-          className={styles.safariIconWidthFix}
           horizontal
           style={{
             height: 24,

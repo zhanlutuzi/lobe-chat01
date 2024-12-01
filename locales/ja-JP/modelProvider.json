@@ -51,6 +51,32 @@
       "title": "使用カスタム Bedrock 認証情報"
     }
   },
+  "cloudflare": {
+    "apiKey": {
+      "desc": "Cloudflare API Key を入力してください",
+      "placeholder": "Cloudflare API Key",
+      "title": "Cloudflare API Key"
+    },
+    "baseURLOrAccountID": {
+      "desc": "Cloudflare アカウント ID またはカスタム API アドレスを入力してください。",
+      "placeholder": "Cloudflare アカウント ID / カスタム API URL",
+      "title": "Cloudflare アカウント ID / API アドレス"
+    }
+  },
+  "github": {
+    "personalAccessToken": {
+      "desc": "あなたのGithub PATを入力してください。[こちら](https://github.com/settings/tokens)をクリックして作成します",
+      "placeholder": "ghp_xxxxxx",
+      "title": "GitHub PAT"
+    }
+  },
+  "huggingface": {
+    "accessToken": {
+      "desc": "あなたの HuggingFace トークンを入力してください。 [こちら](https://huggingface.co/settings/tokens) をクリックして作成します。",
+      "placeholder": "hf_xxxxxxxxx",
+      "title": "HuggingFace トークン"
+    }
+  },
   "ollama": {
     "checker": {
       "desc": "プロキシアドレスが正しく入力されているかをテストします",
@@ -103,6 +129,42 @@
       "downloaded": "{{completed}} / {{total}}",
       "starting": "Starting download...",
       "title": "Download specified Ollama model"
+    }
+  },
+  "sensenova": {
+    "sensenovaAccessKeyID": {
+      "desc": "SenseNova アクセスキー ID を入力してください",
+      "placeholder": "SenseNova アクセスキー ID",
+      "title": "アクセスキー ID"
+    },
+    "sensenovaAccessKeySecret": {
+      "desc": "SenseNova アクセスキーシークレットを入力してください",
+      "placeholder": "SenseNova アクセスキーシークレット",
+      "title": "アクセスキーシークレット"
+    },
+    "unlock": {
+      "description": "あなたのアクセスキー ID / アクセスキーシークレットを入力すると、セッションが開始されます。アプリはあなたの認証設定を記録しません",
+      "title": "カスタム SenseNova 認証情報を使用"
+    }
+  },
+  "wenxin": {
+    "accessKey": {
+      "desc": "百度千帆プラットフォームのAccess Keyを入力してください",
+      "placeholder": "Qianfan Access Key",
+      "title": "Access Key"
+    },
+    "checker": {
+      "desc": "AccessKey / SecretAccessが正しく入力されているかテストします"
+    },
+    "secretKey": {
+      "desc": "百度千帆プラットフォームのSecret Keyを入力してください",
+      "placeholder": "Qianfan Secret Key",
+      "title": "Secret Key"
+    },
+    "unlock": {
+      "customRegion": "カスタムサービス地域",
+      "description": "AccessKey / SecretKeyを入力することでセッションを開始できます。アプリはあなたの認証設定を記録しません",
+      "title": "カスタム文心一言認証情報を使用"
     }
   },
   "zeroone": {

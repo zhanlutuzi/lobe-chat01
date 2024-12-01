@@ -13,12 +13,12 @@ import {
 import { createSelectSchema } from 'drizzle-zod';
 
 import { idGenerator } from '../../utils/idGenerator';
-import { createdAt, updatedAt } from './_helpers';
+import { timestamps } from './_helpers';
 import { agents } from './agent';
 import { files } from './file';
 import { chunks, embeddings } from './rag';
 import { sessions } from './session';
-import { topics } from './topic';
+import { threads, topics } from './topic';
 import { users } from './user';
 
 // @ts-ignore
@@ -51,6 +51,7 @@ export const messages = pgTable(
       .notNull(),
     sessionId: text('session_id').references(() => sessions.id, { onDelete: 'cascade' }),
     topicId: text('topic_id').references(() => topics.id, { onDelete: 'cascade' }),
+    threadId: text('thread_id').references(() => threads.id, { onDelete: 'cascade' }),
     // @ts-ignore
     parentId: text('parent_id').references(() => messages.id, { onDelete: 'set null' }),
     quotaId: text('quota_id').references(() => messages.id, { onDelete: 'set null' }),
@@ -58,8 +59,7 @@ export const messages = pgTable(
     // used for group chat
     agentId: text('agent_id').references(() => agents.id, { onDelete: 'set null' }),
 
-    createdAt: createdAt(),
-    updatedAt: updatedAt(),
+    ...timestamps,
   },
   (table) => ({
     createdAtIdx: index('messages_created_at_idx').on(table.createdAt),

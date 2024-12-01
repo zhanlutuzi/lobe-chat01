@@ -10,10 +10,11 @@ import { featureFlagsSelectors, useServerConfigStore } from '@/store/serverConfi
 import { useSessionStore } from '@/store/session';
 
 export interface TopActionProps {
+  isPinned?: boolean | null;
   tab?: SidebarTabKey;
 }
 
-const TopActions = memo<TopActionProps>(({ tab }) => {
+const TopActions = memo<TopActionProps>(({ tab, isPinned }) => {
   const { t } = useTranslation('common');
   const switchBackToChat = useGlobalStore((s) => s.switchBackToChat);
   const { showMarket, enableKnowledgeBase } = useServerConfigStore(featureFlagsSelectors);
@@ -29,7 +30,7 @@ const TopActions = memo<TopActionProps>(({ tab }) => {
         }}
       >
         <ActionIcon
-          active={tab === SidebarTabKey.Chat}
+          active={tab === SidebarTabKey.Chat && !isPinned}
           icon={MessageSquare}
           placement={'right'}
           size="large"
@@ -48,13 +49,13 @@ const TopActions = memo<TopActionProps>(({ tab }) => {
         </Link>
       )}
       {showMarket && (
-        <Link aria-label={t('tab.market')} href={'/market'}>
+        <Link aria-label={t('tab.discover')} href={'/discover'}>
           <ActionIcon
-            active={tab === SidebarTabKey.Market}
+            active={tab === SidebarTabKey.Discover}
             icon={Compass}
             placement={'right'}
             size="large"
-            title={t('tab.market')}
+            title={t('tab.discover')}
           />
         </Link>
       )}

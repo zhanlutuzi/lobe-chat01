@@ -1,40 +1,31 @@
-import dynamic from 'next/dynamic';
 import { cookies, headers } from 'next/headers';
-import { FC, PropsWithChildren } from 'react';
+import { PropsWithChildren } from 'react';
 import { resolveAcceptLanguage } from 'resolve-accept-language';
 
-import { getDebugConfig } from '@/config/debug';
+import { appEnv } from '@/config/app';
 import { getServerFeatureFlagsValue } from '@/config/featureFlags';
-import { LOBE_LOCALE_COOKIE } from '@/const/locale';
+import { DEFAULT_LANG, LOBE_LOCALE_COOKIE } from '@/const/locale';
 import {
   LOBE_THEME_APPEARANCE,
   LOBE_THEME_NEUTRAL_COLOR,
   LOBE_THEME_PRIMARY_COLOR,
 } from '@/const/theme';
+import DebugUI from '@/features/DebugUI';
 import { locales } from '@/locales/resources';
 import { getServerGlobalConfig } from '@/server/globalConfig';
 import { ServerConfigStoreProvider } from '@/store/serverConfig';
 import { getAntdLocale } from '@/utils/locale';
-import { isMobileDevice } from '@/utils/responsive';
+import { isMobileDevice } from '@/utils/server/responsive';
 
 import AppTheme from './AppTheme';
+import Debug from './Debug';
 import Locale from './Locale';
 import QueryProvider from './Query';
 import StoreInitialization from './StoreInitialization';
 import StyleRegistry from './StyleRegistry';
 
-let DebugUI: FC = () => null;
-
-// we need use Constant Folding to remove code below in production
-// refs: https://webpack.js.org/plugins/internal-plugins/#constplugin
-if (process.env.NODE_ENV === 'development') {
-  // eslint-disable-next-line unicorn/no-lonely-if
-  if (getDebugConfig().DEBUG_MODE) {
-    DebugUI = dynamic(() => import('@/features/DebugUI'), { ssr: false }) as FC;
-  }
-}
-
-const parserFallbackLang = () => {
+const parserFallbackLang = async () => {
+  const header = await headers();
   /**
    * The arguments are as follows:
    *
@@ -43,10 +34,10 @@ const parserFallbackLang = () => {
    * 3) The default locale.
    */
   let fallbackLang: string = resolveAcceptLanguage(
-    headers().get('accept-language') || '',
+    header.get('accept-language') || '',
     //  Invalid locale identifier 'ar'. A valid locale should follow the BCP 47 'language-country' format.
     locales.map((locale) => (locale === 'ar' ? 'ar-EG' : locale)),
-    'en-US',
+    DEFAULT_LANG,
   );
   // if match the ar-EG then fallback to ar
   if (fallbackLang === 'ar-EG') fallbackLang = 'ar';
@@ -56,14 +47,14 @@ const parserFallbackLang = () => {
 
 const GlobalLayout = async ({ children }: PropsWithChildren) => {
   // get default theme config to use with ssr
-  const cookieStore = cookies();
+  const cookieStore = await cookies();
   const appearance = cookieStore.get(LOBE_THEME_APPEARANCE);
   const neutralColor = cookieStore.get(LOBE_THEME_NEUTRAL_COLOR);
   const primaryColor = cookieStore.get(LOBE_THEME_PRIMARY_COLOR);
 
   // get default locale config to use with ssr
   const defaultLang = cookieStore.get(LOBE_LOCALE_COOKIE);
-  const fallbackLang = parserFallbackLang();
+  const fallbackLang = await parserFallbackLang();
 
   // if it's a new user, there's no cookie
   // So we need to use the fallback language parsed by accept-language
@@ -79,9 +70,12 @@ const GlobalLayout = async ({ children }: PropsWithChildren) => {
     <StyleRegistry>
       <Locale antdLocale={antdLocale} defaultLang={userLocale}>
         <AppTheme
+          customFontFamily={appEnv.CUSTOM_FONT_FAMILY}
+          customFontURL={appEnv.CUSTOM_FONT_URL}
           defaultAppearance={appearance?.value}
           defaultNeutralColor={neutralColor?.value as any}
           defaultPrimaryColor={primaryColor?.value as any}
+          globalCDN={appEnv.CDN_USE_GLOBAL}
         >
           <ServerConfigStoreProvider
             featureFlags={serverFeatureFlags}
@@ -92,6 +86,7 @@ const GlobalLayout = async ({ children }: PropsWithChildren) => {
             <StoreInitialization />
           </ServerConfigStoreProvider>
           <DebugUI />
+          <Debug />
         </AppTheme>
       </Locale>
     </StyleRegistry>

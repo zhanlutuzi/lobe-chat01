@@ -69,6 +69,7 @@ export class MessageModel {
         updatedAt: messages.updatedAt,
 
         parentId: messages.parentId,
+        threadId: messages.threadId,
 
         tools: messages.tools,
         tool_call_id: messagePlugins.toolCallId,
@@ -127,10 +128,12 @@ export class MessageModel {
       .leftJoin(files, eq(files.id, messagesFiles.fileId))
       .where(inArray(messagesFiles.messageId, messageIds));
 
-    const relatedFileList = rawRelatedFileList.map((file) => ({
-      ...file,
-      url: getFullFileUrl(file.url),
-    }));
+    const relatedFileList = await Promise.all(
+      rawRelatedFileList.map(async (file) => ({
+        ...file,
+        url: await getFullFileUrl(file.url),
+      })),
+    );
 
     const imageList = relatedFileList.filter((i) => (i.fileType || '').startsWith('image'));
     const fileList = relatedFileList.filter((i) => !(i.fileType || '').startsWith('image'));

@@ -1,6 +1,5 @@
 // @vitest-environment edge-runtime
-import { FunctionDeclarationSchemaType, FunctionDeclarationsTool } from '@google/generative-ai';
-import { JSONSchema7 } from 'json-schema';
+import { FunctionDeclarationsTool } from '@google/generative-ai';
 import OpenAI from 'openai';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -304,6 +303,30 @@ describe('LobeGoogleAI', () => {
 
   describe('private method', () => {
     describe('convertContentToGooglePart', () => {
+      it('should handle text type messages', async () => {
+        const result = await instance['convertContentToGooglePart']({
+          type: 'text',
+          text: 'Hello',
+        });
+        expect(result).toEqual({ text: 'Hello' });
+      });
+
+      it('should handle base64 type images', async () => {
+        const base64Image =
+          'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAHElEQVQI12P4//8/w38GIAXDIBKE0DHxgljNBAAO9TXL0Y4OHwAAAABJRU5ErkJggg==';
+        const result = await instance['convertContentToGooglePart']({
+          type: 'image_url',
+          image_url: { url: base64Image },
+        });
+
+        expect(result).toEqual({
+          inlineData: {
+            data: 'iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAHElEQVQI12P4//8/w38GIAXDIBKE0DHxgljNBAAO9TXL0Y4OHwAAAABJRU5ErkJggg==',
+            mimeType: 'image/png',
+          },
+        });
+      });
+
       it('should handle URL type images', async () => {
         const imageUrl = 'http://example.com/image.png';
         const mockBase64 = 'mockBase64Data';
@@ -357,7 +380,7 @@ describe('LobeGoogleAI', () => {
           { content: 'Hi', role: 'assistant' },
         ];
 
-        const contents = await instance['buildGoogleMessages'](messages, 'gemini-pro');
+        const contents = await instance['buildGoogleMessages'](messages, 'gemini-1.0');
 
         expect(contents).toHaveLength(3);
         expect(contents).toEqual([
@@ -373,7 +396,7 @@ describe('LobeGoogleAI', () => {
           { content: 'Who are you', role: 'user' },
         ];
 
-        const contents = await instance['buildGoogleMessages'](messages, 'gemini-pro');
+        const contents = await instance['buildGoogleMessages'](messages, 'gemini-1.0');
 
         expect(contents).toHaveLength(3);
         expect(contents).toEqual([
@@ -455,71 +478,12 @@ describe('LobeGoogleAI', () => {
           name: 'testTool',
           description: 'A test tool',
           parameters: {
-            type: FunctionDeclarationSchemaType.OBJECT,
+            type: 'object',
             properties: {
-              param1: { type: FunctionDeclarationSchemaType.STRING },
-              param2: { type: FunctionDeclarationSchemaType.NUMBER },
+              param1: { type: 'string' },
+              param2: { type: 'number' },
             },
             required: ['param1'],
-          },
-        });
-      });
-    });
-
-    describe('convertSchemaObject', () => {
-      it('should correctly convert object schema', () => {
-        const schema: JSONSchema7 = {
-          type: 'object',
-          properties: {
-            prop1: { type: 'string' },
-            prop2: { type: 'number' },
-          },
-        };
-
-        const converted = instance['convertSchemaObject'](schema);
-
-        expect(converted).toEqual({
-          type: FunctionDeclarationSchemaType.OBJECT,
-          properties: {
-            prop1: { type: FunctionDeclarationSchemaType.STRING },
-            prop2: { type: FunctionDeclarationSchemaType.NUMBER },
-          },
-        });
-      });
-
-      // 类似地添加 array/string/number/boolean 类型schema的测试用例
-      // ...
-
-      it('should correctly convert nested schema', () => {
-        const schema: JSONSchema7 = {
-          type: 'object',
-          properties: {
-            nested: {
-              type: 'array',
-              items: {
-                type: 'object',
-                properties: {
-                  prop: { type: 'string' },
-                },
-              },
-            },
-          },
-        };
-
-        const converted = instance['convertSchemaObject'](schema);
-
-        expect(converted).toEqual({
-          type: FunctionDeclarationSchemaType.OBJECT,
-          properties: {
-            nested: {
-              type: FunctionDeclarationSchemaType.ARRAY,
-              items: {
-                type: FunctionDeclarationSchemaType.OBJECT,
-                properties: {
-                  prop: { type: FunctionDeclarationSchemaType.STRING },
-                },
-              },
-            },
           },
         });
       });
@@ -590,6 +554,49 @@ describe('LobeGoogleAI', () => {
             { text: 'Check this image:' },
             { inlineData: { data: '...', mimeType: 'image/png' } },
           ],
+        });
+      });
+
+      it('should correctly convert function call message', async () => {
+        const message = {
+          role: 'assistant',
+          tool_calls: [
+            {
+              id: 'call_1',
+              function: {
+                name: 'get_current_weather',
+                arguments: JSON.stringify({ location: 'London', unit: 'celsius' }),
+              },
+              type: 'function',
+            },
+          ],
+        } as OpenAIChatMessage;
+
+        const converted = await instance['convertOAIMessagesToGoogleMessage'](message);
+        expect(converted).toEqual({
+          role: 'function',
+          parts: [
+            {
+              functionCall: {
+                name: 'get_current_weather',
+                args: { location: 'London', unit: 'celsius' },
+              },
+            },
+          ],
+        });
+      });
+
+      it('should correctly handle empty content', async () => {
+        const message: OpenAIChatMessage = {
+          role: 'user',
+          content: '' as any, // explicitly set as empty string
+        };
+
+        const converted = await instance['convertOAIMessagesToGoogleMessage'](message);
+
+        expect(converted).toEqual({
+          role: 'user',
+          parts: [{ text: '' }],
         });
       });
     });
