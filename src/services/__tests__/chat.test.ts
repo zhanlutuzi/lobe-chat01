@@ -60,6 +60,7 @@ beforeEach(() => {
   // 默认设置 isServerMode 为 false
   vi.mock('@/const/version', () => ({
     isServerMode: false,
+    isDeprecatedEdition: true,
   }));
 });
 
@@ -836,6 +837,7 @@ describe('ChatService', () => {
       // 重新模拟模块，设置 isServerMode 为 true
       vi.doMock('@/const/version', () => ({
         isServerMode: true,
+        isDeprecatedEdition: true,
       }));
 
       // 需要在修改模拟后重新导入相关模块
@@ -904,7 +906,7 @@ describe('ChatService', () => {
  * initialization of AgentRuntime with different providers
  */
 vi.mock('../_auth', async (importOriginal) => {
-  return await importOriginal();
+  return importOriginal();
 });
 describe('AgentRuntimeOnClient', () => {
   describe('initializeWithClientStore', () => {
@@ -939,6 +941,7 @@ describe('AgentRuntimeOnClient', () => {
             },
           },
         } as UserSettingsState) as unknown as UserStore;
+
         const runtime = await initializeWithClientStore(ModelProvider.Azure, {});
         expect(runtime).toBeInstanceOf(AgentRuntime);
         expect(runtime['_runtime']).toBeInstanceOf(LobeAzureOpenAI);

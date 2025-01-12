@@ -15,9 +15,9 @@ import Back from '../../../features/Back';
 
 export const useStyles = createStyles(({ css, token }) => ({
   tag: css`
+    border: none;
     color: ${token.colorTextSecondary};
     background: ${token.colorFillSecondary};
-    border: none;
   `,
   time: css`
     font-size: 12px;
@@ -75,7 +75,7 @@ const Header = memo<HeaderProps>(({ identifier, data, mobile }) => {
       {data.meta.description && <div>{t(`${identifier}.description`, { ns: 'models' })}</div>}
       <ModelFeatureTags
         functionCall={data.meta.functionCall}
-        tokens={data.meta.tokens}
+        tokens={data.meta.contextWindowTokens}
         vision={data.meta.vision}
       />
     </Flexbox>

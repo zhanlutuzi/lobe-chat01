@@ -9,7 +9,9 @@ import { LOBE_URL_IMPORT_NAME } from '@/const/url';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { useEnabledDataSync } from '@/hooks/useSyncData';
 import { useAgentStore } from '@/store/agent';
+import { useAiInfraStore } from '@/store/aiInfra';
 import { useGlobalStore } from '@/store/global';
+import { systemStatusSelectors } from '@/store/global/selectors';
 import { useServerConfigStore } from '@/store/serverConfig';
 import { serverConfigSelectors } from '@/store/serverConfig/selectors';
 import { useUserStore } from '@/store/user';
@@ -34,6 +36,7 @@ const StoreInitialization = memo(() => {
   const useInitSystemStatus = useGlobalStore((s) => s.useInitSystemStatus);
 
   const useInitAgentStore = useAgentStore((s) => s.useInitAgentStore);
+  const useInitAiProviderKeyVaults = useAiInfraStore((s) => s.useFetchAiProviderRuntimeState);
 
   // init the system preference
   useInitSystemStatus();
@@ -50,10 +53,14 @@ const StoreInitialization = memo(() => {
    * But during initialization, the value of `enableAuth` might be incorrect cause of the async fetch.
    * So we need to use `isSignedIn` only to determine whether request for the default agent config and user state.
    */
-  const isLoginOnInit = enableNextAuth ? isSignedIn : isLogin;
+  const isDBInited = useGlobalStore(systemStatusSelectors.isDBInited);
+  const isLoginOnInit = isDBInited && (enableNextAuth ? isSignedIn : isLogin);
 
   // init inbox agent and default agent config
   useInitAgentStore(isLoginOnInit, serverConfig.defaultAgent?.config);
+
+  // init user provider key vaults
+  useInitAiProviderKeyVaults(isLoginOnInit);
 
   // init user state
   useInitUserState(isLoginOnInit, serverConfig, {

@@ -1,15 +1,29 @@
 import { JWTPayload, LOBE_CHAT_AUTH_HEADER } from '@/const/auth';
+import { isServerMode } from '@/const/version';
 import { ModelProvider } from '@/libs/agent-runtime';
+import { aiProviderSelectors, useAiInfraStore } from '@/store/aiInfra';
 import { useUserStore } from '@/store/user';
 import { keyVaultsConfigSelectors, userProfileSelectors } from '@/store/user/selectors';
-import { GlobalLLMProviderKey } from '@/types/user/settings';
+import {
+  AWSBedrockKeyVault,
+  AzureOpenAIKeyVault,
+  CloudflareKeyVault,
+  OpenAICompatibleKeyVault,
+  WenxinKeyVault,
+} from '@/types/user/settings';
 import { createJWT } from '@/utils/jwt';
 
-export const getProviderAuthPayload = (provider: string) => {
+export const getProviderAuthPayload = (
+  provider: string,
+  keyVaults: OpenAICompatibleKeyVault &
+    AzureOpenAIKeyVault &
+    AWSBedrockKeyVault &
+    WenxinKeyVault &
+    CloudflareKeyVault,
+) => {
   switch (provider) {
     case ModelProvider.Bedrock: {
-      const { accessKeyId, region, secretAccessKey, sessionToken } =
-        keyVaultsConfigSelectors.bedrockConfig(useUserStore.getState());
+      const { accessKeyId, region, secretAccessKey, sessionToken } = keyVaults;
 
       const awsSecretAccessKey = secretAccessKey;
       const awsAccessKeyId = accessKeyId;
@@ -25,24 +39,8 @@ export const getProviderAuthPayload = (provider: string) => {
       };
     }
 
-    case ModelProvider.SenseNova: {
-      const { sensenovaAccessKeyID, sensenovaAccessKeySecret } = keyVaultsConfigSelectors.sensenovaConfig(
-        useUserStore.getState(),
-      );
-
-      const apiKey = (sensenovaAccessKeyID || '') + ':' + (sensenovaAccessKeySecret || '')
-
-      return { 
-        apiKey,
-        sensenovaAccessKeyID: sensenovaAccessKeyID, 
-        sensenovaAccessKeySecret: sensenovaAccessKeySecret, 
-      };
-    }
-
     case ModelProvider.Wenxin: {
-      const { secretKey, accessKey } = keyVaultsConfigSelectors.wenxinConfig(
-        useUserStore.getState(),
-      );
+      const { secretKey, accessKey } = keyVaults;
 
       const apiKey = (accessKey || '') + (secretKey || '');
 
@@ -54,36 +52,26 @@ export const getProviderAuthPayload = (provider: string) => {
     }
 
     case ModelProvider.Azure: {
-      const azure = keyVaultsConfigSelectors.azureConfig(useUserStore.getState());
-
       return {
-        apiKey: azure.apiKey,
-        azureApiVersion: azure.apiVersion,
-        endpoint: azure.endpoint,
+        apiKey: keyVaults.apiKey,
+        azureApiVersion: keyVaults.apiVersion,
+        baseURL: keyVaults.endpoint,
       };
     }
 
     case ModelProvider.Ollama: {
-      const config = keyVaultsConfigSelectors.ollamaConfig(useUserStore.getState());
-
-      return { endpoint: config?.baseURL };
+      return { baseURL: keyVaults?.baseURL };
     }
 
     case ModelProvider.Cloudflare: {
-      const config = keyVaultsConfigSelectors.cloudflareConfig(useUserStore.getState());
-
       return {
-        apiKey: config?.apiKey,
-        cloudflareBaseURLOrAccountID: config?.baseURLOrAccountID,
+        apiKey: keyVaults?.apiKey,
+        cloudflareBaseURLOrAccountID: keyVaults?.baseURLOrAccountID,
       };
     }
 
     default: {
-      const config = keyVaultsConfigSelectors.getVaultByProvider(provider as GlobalLLMProviderKey)(
-        useUserStore.getState(),
-      );
-
-      return { apiKey: config?.apiKey, endpoint: config?.baseURL };
+      return { apiKey: keyVaults?.apiKey, baseURL: keyVaults?.baseURL };
     }
   }
 };
@@ -92,7 +80,7 @@ const createAuthTokenWithPayload = async (payload = {}) => {
   const accessCode = keyVaultsConfigSelectors.password(useUserStore.getState());
   const userId = userProfileSelectors.userId(useUserStore.getState());
 
-  return await createJWT<JWTPayload>({ accessCode, userId, ...payload });
+  return createJWT<JWTPayload>({ accessCode, userId, ...payload });
 };
 
 interface AuthParams {
@@ -102,12 +90,27 @@ interface AuthParams {
   provider?: string;
 }
 
+export const createPayloadWithKeyVaults = (provider: string) => {
+  let keyVaults = {};
+
+  // TODO: remove this condition in V2.0
+  if (!isServerMode) {
+    keyVaults = keyVaultsConfigSelectors.getVaultByProvider(provider as any)(
+      useUserStore.getState(),
+    );
+  } else {
+    keyVaults = aiProviderSelectors.providerKeyVaults(provider)(useAiInfraStore.getState()) || {};
+  }
+
+  return getProviderAuthPayload(provider, keyVaults);
+};
+
 // eslint-disable-next-line no-undef
 export const createHeaderWithAuth = async (params?: AuthParams): Promise<HeadersInit> => {
   let payload = params?.payload || {};
 
   if (params?.provider) {
-    payload = { ...payload, ...getProviderAuthPayload(params?.provider) };
+    payload = { ...payload, ...createPayloadWithKeyVaults(params?.provider) };
   }
 
   const token = await createAuthTokenWithPayload(payload);
